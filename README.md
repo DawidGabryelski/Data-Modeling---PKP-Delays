@@ -101,3 +101,69 @@ The data model incorporates several dimension tables to provide descriptive cont
 #### 6. `dim_line_summary`
 * **Source File:** Derived from `line_stations`
 * **Description:** Designed specifically to resolve and avoid many-to-many relationships within the model. It aggregates station data per line, providing the line number, total station count, first and last stations along the route, and their corresponding starting and ending kilometrage bounds.
+
+## Data Model Relationships
+
+The star schema is structured using defined relationships linking operational fact tables to descriptive dimension tables. Most relationships are active one-to-many connections, except for specific routing links configured as inactive to prevent ambiguous path calculations in DAX measures.
+
+## Data Model Relationships
+
+The star schema is structured around operational events connected through well-defined relationships linking fact tables to descriptive and temporal dimensions. Most relationships are active many-to-one connections, with specific routing paths configured as inactive to prevent ambiguous calculations in DAX measures. Time-based intelligence is unified across all main operational events and meteorological logs via a centralized `dim_date` table.
+
+| From Table | From Column | To Table | To Column | Status / Cardinality |
+| :--- | :--- | :--- | :--- | :--- |
+| `fact_train_service` | `category_id` | `dim_train_category` | `train_category_id` | Active (M:1) |
+| `fact_train_service` | `start_station_id` | `dim_stations` | `id` | Active (M:1) |
+| `fact_train_service` | `end_station_id` | `dim_stations` | `id` | Inactive (M:1) |
+| `fact_run_stops` | `difficulty_id` | `dim_difficulties` | `id` | Active (M:1) |
+| `fact_run_stops` | `station_id` | `dim_stations` | `id` | Active (M:1) |
+| `fact_line_service` | `line_number` | `dim_lines` | `line_number` | Active (M:1) |
+| `fact_speed_warnings` | `line_number` | `dim_lines` | `line_number` | Active (M:1) |
+| `fact_clousures` | `line_number` | `dim_lines` | `line_number` | Active (M:1) |
+| `dim_line_stations` | `line_number` | `dim_lines` | `line_number` | Active (M:1) |
+| `fact_train_service` | `date` | `dim_date` | `Date` | Active (M:1) |
+| `fact_line_service` | `date` | `dim_date` | `Date` | Active (M:1) |
+| `fact_run_stops` | `date` | `dim_date` | `Date` | Active (M:1) |
+| `fact_speed_warnings` | `date` | `dim_date` | `Date` | Active (M:1) |
+| `fact_weather` | `timestamp_hour` | `dim_date` | `Date` | Active (M:1) |
+
+
+## Core DAX Measures
+
+The analytical model relies on a set of core DAX measures to aggregate operational events, evaluate service intensity, and track infrastructure constraints. Below is the summary of the implemented measures along with their expressions and formats:
+
+| Measure Name | DAX Expression | Format | Description |
+| :--- | :--- | :--- | :--- |
+| `total closures` | `DISTINCTCOUNT(fact_clousures[id])` | Integer | Counts total unique track closures across the network. |
+| `total line services` | `DISTINCTCOUNT(fact_line_service[service_id])` | Integer | Counts total unique service line operations. |
+| `total run difficulties` | `DISTINCTCOUNT(fact_run_stops[id])` | #,0 | Quantifies unique disruptions and difficulties recorded during train runs. |
+| `total train services` | `DISTINCTCOUNT(fact_train_service[train_service_id])` | Integer | Counts total unique train services operated by PKP Intercity. |
+| `total warnings` | `DISTINCTCOUNT(fact_speed_warnings[id])` | Integer | Counts total unique speed restrictions and warnings issued. |
+| `most serviced lines` | `CALCULATE([total line services], FILTER(VALUES(dim_lines[line_number]), [total line services] > 100))` | Integer | Filters and aggregates lines with high traffic volume exceeding 100 service operations. |
+| `% of new warnings` | `VAR _allwarnings = COUNTROWS(fact_speed_warnings) `<br>`VAR _newwarning = CALCULATE(COUNTROWS(fact_speed_warnings), fact_speed_warnings[is_new] = TRUE) `<br>`RETURN DIVIDE(_newwarning, _allwarnings)` | Decimal / Percentage | Calculates the proportion of newly flagged speed warnings relative to the total volume using local variables. |
+
+## Project Summary
+
+This project delivers a comprehensive Power BI analysis of operational delays within the PKP Intercity network. The primary objective is to visualize key performance indicators related to service punctuality, infrastructure bottlenecks, and external factors influencing train operations.
+
+### Key Features
+* Delay Overview: Visualizes average arrival and departure delays across the network.
+* Service Distribution: Analyzes the traffic share by train category (EIC, EIP, IC, TLK), highlighting the operational proportion of InterCity services.
+* Infrastructure Impact: Connects delays with track closures, difficulties, and speed warnings.
+* Route Analysis: Identifies the most serviced lines to pinpoint high-traffic areas.
+
+### Tools and Technologies
+* Data Preparation: Power Query (M)
+* Data Modeling: Power BI (DAX)
+* Data Visualization: Power BI Desktop
+* Source Data: CSV files representing train services, line segments, closures, weather, and incidents from
+  https://www.kaggle.com/datasets/marekk13/pkp-intercity-delays-dataset
+
+---
+
+### Dashboard Preview
+
+Below is a preview of the main report page, providing a high-level overview of the network's performance.
+
+<img width="1117" height="627" alt="Zrzut ekranu 2026-08-19 132040" src="https://github.com/user-attachments/assets/580e995e-8e44-4fd5-948c-35ee957d1da4" />
+
