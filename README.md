@@ -13,17 +13,13 @@ This project delivers a comprehensive data modeling and business intelligence so
 * **Power BI Desktop:** Core environment for relational data modeling, DAX measure development, and report design.
 * **Power Query (M):** ETL pipeline used for data ingestion, cleaning, transformation, and shaping.
 * **Data Modeling:** Star schema architecture optimized for high-performance analytical queries and robust filter propagation.
-* **Git & GitHub:** Version control and repository documentation management.
 
 ## Data Dictionary
 
-### Operational and Event-Level
 * **`run_stops.csv`**: Primary fact-level table recording individual station stops. Tracks arrival/departure delays and distance-from-start metrics for every train run.
 * **`run_stop_difficulties.csv`**: Bridge table associating operational incidents/difficulties with specific station stops for granular root-cause reporting.
 * **`difficulties.csv`**: Lookup table mapping incident IDs to descriptive delay categories (e.g., equipment failure, infrastructure issues).
 * **`service_line_segments.csv`**: Maps train runs to specific physical segments of railway lines to isolate corridor-specific bottlenecks.
-
-### Network and Infrastructure
 * **`railway_lines.csv`**: High-level metadata for railway lines (names, start/end points).
 * **`line_stations.csv`**: Geographical coordinates and kilometrage of stations along the network.
 * **`stations.csv`**: Master dimension table for stations, including passenger volume rankings and geolocation.
@@ -31,8 +27,6 @@ This project delivers a comprehensive data modeling and business intelligence so
 * **`line_speeds.csv`**: Technical specifications regarding permissible speeds, used to analyze infrastructure constraints.
 * **`speed_warnings.csv`**: Active speed restrictions (temporary/permanent) across the network.
 * **`track_closures.csv`**: Records of scheduled/unscheduled track closures, enabling correlation between maintenance windows and delay spikes.
-
-### Service and Environmental
 * **`train_services.csv`**: Catalog of specific train services, categories, and route endpoints.
 * **`train_categories.csv`**: Service classifications (e.g., IC, EIP) for performance segmentation.
 * **`occupancies.csv`**: Standardized occupancy level categories.
@@ -43,8 +37,9 @@ This project delivers a comprehensive data modeling and business intelligence so
 * **Predictive Modeling:** Incorporating Machine Learning (via Python/R in Power BI) to forecast potential delays based on weather forecasts and historical closure patterns.
 * **Real-time Integration:** Transitioning from static CSV ingestion to live API feeds from railway infrastructure providers.
 
+## Data Modeling
 
-## Fact Tables Overview
+### Fact Tables 
 
 The data model is built around a star schema centered on operational events, service trajectories, and infrastructure constraints. Below is the summary of all core fact tables established within the Power BI data model:
 
@@ -72,7 +67,7 @@ The data model is built around a star schema centered on operational events, ser
 * **Source File:** `train_services.csv`
 * **Description:** Contains records regarding individual train services operated by PKP Intercity, defining operational service IDs, official train numbers, names, category classifications, domestic status flags, and origin/destination station identifiers.
 
-## Dimension Tables Overview
+### Dimension Tables Overview
 
 The data model incorporates several dimension tables to provide descriptive context, lookups, and hierarchical groupings for operational filtering and reporting. Below is the complete summary of all core dimension tables established within the Power BI data model:
 
@@ -100,9 +95,6 @@ The data model incorporates several dimension tables to provide descriptive cont
 * **Source File:** Derived from `line_stations`
 * **Description:** Designed specifically to resolve and avoid many-to-many relationships within the model. It aggregates station data per line, providing the line number, total station count, first and last stations along the route, and their corresponding starting and ending kilometrage bounds.
 
-## Data Model Relationships
-
-The star schema is structured using defined relationships linking operational fact tables to descriptive dimension tables. Most relationships are active one-to-many connections, except for specific routing links configured as inactive to prevent ambiguous path calculations in DAX measures.
 
 ## Data Model Relationships
 
@@ -149,13 +141,6 @@ This project delivers a comprehensive Power BI analysis of operational delays wi
 * Service Distribution: Analyzes the traffic share by train category (EIC, EIP, IC, TLK), highlighting the operational proportion of InterCity services.
 * Infrastructure Impact: Connects delays with track closures, difficulties, and speed warnings.
 * Route Analysis: Identifies the most serviced lines to pinpoint high-traffic areas.
-
-### Tools and Technologies
-* Data Preparation: Power Query (M)
-* Data Modeling: Power BI (DAX)
-* Data Visualization: Power BI Desktop
-* Source Data: CSV files representing train services, line segments, closures, weather, and incidents from
-  https://www.kaggle.com/datasets/marekk13/pkp-intercity-delays-dataset
 
 ---
 
