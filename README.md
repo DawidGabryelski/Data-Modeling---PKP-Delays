@@ -38,8 +38,6 @@ This project delivers a comprehensive data modeling and business intelligence so
 * **`occupancies.csv`**: Standardized occupancy level categories.
 * **`weather.csv`**: Granular hourly historical meteorological data (temperature, precipitation, wind speed) used to assess weather impacts on network punctuality.
 
-## Visualizations & Dashboard
-[Placeholder: Insert screenshots of your Power BI dashboard here]
 
 ## Future Development
 * **Predictive Modeling:** Incorporating Machine Learning (via Python/R in Power BI) to forecast potential delays based on weather forecasts and historical closure patterns.
